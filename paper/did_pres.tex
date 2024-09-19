@@ -1,0 +1,268 @@
+\documentclass[11pt, aspectratio=169]{beamer}
+% \documentclass[11pt,handout]{beamer}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{textcomp}
+\usepackage{float, afterpage, rotating, graphicx}
+\usepackage{epstopdf}
+\usepackage{longtable, booktabs, tabularx}
+\usepackage{fancyvrb, moreverb, relsize}
+\usepackage{eurosym, calc}
+\usepackage{amsmath, amssymb, amsfonts, amsthm, bm}
+\usepackage[
+    natbib=true,
+    bibencoding=inputenc,
+    bibstyle=authoryear-ibid,
+    citestyle=authoryear-comp,
+    maxcitenames=3,
+    maxbibnames=10,
+    useprefix=false,
+    sortcites=true,
+    backend=biber
+]{biblatex}
+\AtBeginDocument{\toggletrue{blx@useprefix}}
+\AtBeginBibliography{\togglefalse{blx@useprefix}}
+\setlength{\bibitemsep}{1.5ex}
+\addbibresource{refs.bib}
+
+\hypersetup{colorlinks=true, linkcolor=black, anchorcolor=black, citecolor=black, filecolor=black, menucolor=black, runcolor=black, urlcolor=black}
+
+\setbeamertemplate{footline}[frame number]
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{frametitle}{\centering\vspace{1ex}\insertframetitle\par}
+
+
+\begin{document}
+
+\title{Difference in Difference Estimation Methods}
+
+\author[Sneha Roy, Biswajit Palit]
+{
+{\bf Sneha Roy, Biswajit Palit}\\
+{\small Rheinische Friedrich Wilhelms Universität Bonn}\\[1ex]
+}
+
+
+\begin{frame}
+    \titlepage
+    \note{~}
+\end{frame}
+
+
+\begin{frame}[t]
+    \frametitle{Difference in Differences: Introduction}
+
+    Difference-in-Differences involves identifying a distinct intervention or treatment, often the implementation of a new law. 
+    The approach compares the change in outcomes after and before the intervention for groups affected by the intervention with the corresponding difference for unaffected groups.
+    Formally, 
+    \begin{equation}
+        Y_{igt} = \gamma_{0} + \gamma_{1} \cdot \alpha_g + \gamma_{2} \cdot \delta_t + \beta T_{gt} + \epsilon_{igt} 
+    \end{equation}
+
+    \begin{itemize}
+        \item $T_{gt} = \alpha_{g} \cdot \delta_{t}$ 
+        \item where $\delta_{t} = 1$ in the post-period and $\delta_{t} = 0$ in the pre-period  
+        \item $\alpha_{g} = 1$ if treated and $\alpha_{g} = 0$ if not treated
+        \item $\alpha_{g} \cdot \delta_{g} = 1$ if treated and in the post-period and = 0 otherwise.
+        \item $\epsilon_{igt}$ is the error.
+    \end{itemize}
+
+\end{frame}
+
+
+\begin{frame}{Diff in Diff : Intuition}
+
+Intuitively, diff-in-diff estimation is just a comparison of 4 cell-level means. Only one cell is treated: Treatment×Post-Program
+        \begin{center}
+            ($\bar{Y}{\text{Post}}^{\text{Treatment}}$ - $\bar{Y}{\text{Pre}}^{\text{Treatment}}$) - ($\bar{Y}{\text{Post}}^{\text{Control}}$ - $\bar{Y}{\text{Pre}}^{\text{Control}}$)  = $\hat{\beta}$
+        \end{center}
+    
+        \begin{center}
+          \resizebox{0.7\textwidth}{!}{%
+            \begin{tabular}{|l|l|l|l|}
+              \hline
+               & Treatment & Control & Diff \\
+              \hline
+              Pre-Treatment & $\gamma_{0} + \gamma_{1}$ & $\gamma_{0}$ & $\gamma_{1}$ \\
+              \hline
+              Post-Treatment & $\gamma_{0} + \gamma_{1} + \gamma_{2} + \beta$ & $\gamma_{0} + \gamma_{2}$ & $\gamma_{1} + \beta$ \\
+              \hline
+              Diff & $\gamma_{2} + \beta$ & $\gamma_{2}$ & $\hat{\beta}$ \\
+              \hline
+            \end{tabular}
+          }
+        \end{center}
+    
+\end{frame}
+
+
+\begin{frame}[t]
+    \frametitle{Manufactured Data: AR(1)}
+
+    We employ the AR(1) data generation model, the equation of which is as follows:
+
+    The AR(1) model is defined as follows:
+    \[
+    y_{gt} = \alpha_g + \delta_t + \rho \cdot y_{gt-1} + \epsilon_{gt}
+    \]
+    
+    Where:
+    \begin{itemize}
+        \item $y_{gt}$: Observed outcome at state $g$ and time $t$.
+        \item $\alpha_g$ and $\delta_t$: State and time effects, respectively, drawn from a $\mathcal{N}(0,1)$ distribution.
+        \item $\rho$: Autoregressive coefficient.
+        \item $y_{gt-1}$: Lagged outcome.
+        \item $\epsilon_{gt}$: Randomly chosen errors for each observation from $\mathcal{N}(0,1)$.
+        \item When $\rho$ is the same for all states, the data generation process (DGP) is homogenous AR(1). When $\rho$ is a random number belonging to the distribution $\mathcal{U}(0.2, 0.9)$ for each state, then the DGP is heterogenous AR(1).
+    \end{itemize}
+\end{frame}
+
+
+\begin{frame}[t]
+    \frametitle{Manufactured Data: MA(1)}
+
+    We also employ the MA(1) data generation model as follows:
+
+    The MA(1) model is defined as follows:
+    \[
+    y_{gt} = \alpha_g + \delta_t + \rho \cdot \epsilon_{gt-1} + \epsilon_{gt}
+    \]
+    
+    Where:
+    \begin{itemize}
+        \item $y_{gt}$: Observed outcome at state $g$ and time $t$.
+        \item $\alpha_g$ and $\delta_t$: State and time effects, respectively, drawn from a $\mathcal{N}(0,1)$ distribution.
+        \item $\theta$: Shock coefficient.
+        \item $\epsilon_{gt-1}$: Lagged error term.
+        \item $\epsilon_{gt}$: Randomly chosen errors for each observation from $\mathcal{N}(0,1)$.
+        \item $\theta = 0.5$ for all states.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{Type 1 Convergence Plots: Homogenous AR(1)}
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.4\textwidth]{../python/figures/type_1/homogenous_ar1_type1_convergence}
+    \end{figure}
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.4\textwidth]{../python/figures/power/homogenous_ar1_power_convergence}
+    \end{figure}
+
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{Type 1 Convergence Plots: Heterogenous AR(1)}
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.4\textwidth]{../python/figures/type_1/heterogenous_ar1_type1_convergence}
+
+    \end{figure}
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.4\textwidth]{../python/figures/power/heterogenous_ar1_power_convergence}
+
+    \end{figure}    
+
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{Type 1 Convergence Plots: Homogenous MA(1)}
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.4\textwidth]{../python/figures/type_1/homogenous_ma1_type1_convergence}
+
+    \end{figure}
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.4\textwidth]{../python/figures/power/homogenous_ma1_power_convergence}
+    \end{figure}
+
+
+\end{frame}
+
+
+\begin{frame}[t]
+    \frametitle{Testing on a real dataset}
+
+    Since we see the CRSE t(g-1) method provides the best power even by maintaining a correct test sizes, we test this method on a real world dataset. 
+
+    \begin{itemize}
+        \item We extract micro data on women in their fourth interview month in Merged Outgoing Rotation Group of the CPS for the years 1980 to 2000. We focus on all women between the ages 25 and 50. 
+        \item We extract information on weekly earnings, education, age, and state of residence.
+        \item The sample contains nearly 900,000 observations. We define wage as log of weekly earnings. Of the 900,000 women in the original sample, approximately 443,000 report strictly positive weekly earnings. This generates (50 * 21 = 1050) state-year cells, with each cell containing on average a little more than 400 women with strictly positive earnings.    
+        \item We use age and education dummies ( Up to Grade 10, High School, Masters’ Degree, Doctorate Degree) as covariates at the individual level data.
+        \item We aggregate the data using a 2 step procedure to obtain state year cells.
+    \end{itemize}
+    
+\end{frame}
+
+\begin{frame}{Results of Testing on CPS Data}
+
+    The Type I error turns out to be pretty conservative at 3.5\% and the Power of the CRSE method 
+    to detect real effects turns out to be 43\%. 
+    The only other test providing us correct test size and a good power to detect real effects based on the 
+    CPS data is Residual Aggregation with a Type I Error of 5\% and the power of 44.5\%.
+    
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{Validating the results on an Empirical Dataset}
+
+    During this stage of the project, we examine the effects of joining the WTO on improving agricultural imports of developing countries.
+
+    \begin{itemize}
+        \item We have selected the developing countries under Article XII of the WTO Agreement to be our Treatment group. These countries ascended into WTO after 1995 in different years following a staggered treatment approach.
+        \item In theory, the control group should include non-WTO members whose charateristics are similar to the ascending governments, but for practical reasons it is not a feasible option since the number of countries outside of WTO is relatively small (35) and heterogenous.
+        \item This outcome has led us to select pre-Uruguay Round developing country members of GATT as a suitable control group.
+    \end{itemize}
+
+\end{frame}
+
+\begin{frame}{Results of Regression Analysis on Empirical Data}
+
+   The CRSE method gives us a p-value of 0.661 for the Treatment dummy which leads us to fail to reject
+   the null hypothesis of no effect of WTO ascencion on the agri imports of the Article XII countries.
+
+   Thus we concluse that WTO ascension has had no significant effect on the Article XII members in terms
+   total agricultural imports.
+    
+\end{frame}
+
+
+\begin{frame}[t]
+    \frametitle{Project Template}
+    \begin{itemize}
+        \item<+-> Please cite this template as: \citet{GaudeckerEconProjectTemplates}
+    \end{itemize}
+    \note{~}
+\end{frame}
+
+
+
+
+
+% Print black screen only in presentation mode for finishing up.
+\mode<beamer> {
+    \beamersetaveragebackground{black}
+    \begin{frame}
+        \frametitle{}
+    \end{frame}
+
+    \beamersetaveragebackground{white}
+}
+
+\begin{frame}[allowframebreaks]
+    \frametitle{Citations}
+    \renewcommand{\bibfont}{\normalfont\footnotesize}
+    \printbibliography
+\end{frame}
+
+\end{document}

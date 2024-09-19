@@ -1,0 +1,381 @@
+\documentclass[11pt, a4paper, leqno]{article}
+\usepackage{a4wide}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{float, afterpage, rotating, graphicx}
+\usepackage{epstopdf}
+\usepackage{longtable, booktabs, tabularx}
+\usepackage{fancyvrb, moreverb, relsize}
+\usepackage{eurosym, calc}
+% \usepackage{chngcntr}
+\usepackage{amsmath, amssymb, amsfonts, amsthm, bm}
+\usepackage{caption}
+\usepackage{mdwlist}
+\usepackage{xfrac}
+\usepackage{setspace}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{subcaption}
+\usepackage{minibox}
+% \usepackage{pdf14} % Enable for Manuscriptcentral -- can't handle pdf 1.5
+% \usepackage{endfloat} % Enable to move tables / figures to the end. Useful for some
+% submissions.
+
+
+
+\usepackage[
+    natbib=true,
+    bibencoding=inputenc,
+    bibstyle=authoryear-ibid,
+    citestyle=authoryear-comp,
+    maxcitenames=3,
+    maxbibnames=10,
+    useprefix=false,
+    sortcites=true,
+    backend=biber
+]{biblatex}
+\AtBeginDocument{\toggletrue{blx@useprefix}}
+\AtBeginBibliography{\togglefalse{blx@useprefix}}
+\setlength{\bibitemsep}{1.5ex}
+\addbibresource{refs.bib}
+
+\usepackage[unicode=true]{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    anchorcolor=black,
+    citecolor=NavyBlue,
+    filecolor=black,
+    menucolor=black,
+    runcolor=black,
+    urlcolor=NavyBlue
+}
+
+
+\widowpenalty=10000
+\clubpenalty=10000
+
+\setlength{\parskip}{1ex}
+\setlength{\parindent}{0ex}
+\setstretch{1.5}
+
+
+\begin{document}
+
+\title{Difference in Differences Estimation Methods\thanks{sneha, biswajit, uni bonn. Email: \href{mailto:s53bpali@uni-bonn.de}{\nolinkurl{s53bpali [at] uni-bonn [dot] de}}.}}
+
+\author{Sneha Roy, Biswajit Palit}
+
+
+\maketitle
+
+
+\begin{abstract}
+    The presence of serial autocorrelation in panel data poses a significant challenge to traditional econometric analysis, 
+    as it violates the assumption of independently distributed errors, thereby undermining the reliability of estimators. In this study, 
+    we conduct Monte Carlo simulations employing various data generation methods to systematically evaluate the breakdown of the Ordinary Least Squares (OLS) estimator in the presence of autocorrelation. 
+    Additionally, we assess the efficacy of alternative econometric techniques commonly utilized in Difference-in-Differences (DD) literature to mitigate the impact of autocorrelation on inference. By quantifying the extent of inference problems stemming from autocorrelation, 
+    our research sheds light on the resilience of different methods to this pervasive issue in panel data analysis.\\[5pt]
+    \textbf{Keywords: } Difference-in-difference estimation, Monte Carlo Simulations, Power, Type1 Error, Small-Sample properties
+\end{abstract}
+
+\clearpage
+
+\section{Introduction} % (fold)
+\label{sec:introduction}
+
+Differences-in-Differences (DD) estimation has gained popularity as a method for estimating causal relationships. DD involves identifying a distinct intervention or treatment, often the implementation of a new law. 
+This approach compares the difference in outcomes after and before the intervention for groups affected by the intervention to the same difference for unaffected groups. DD estimates and their standard errors are most often derived from using Ordinary Least Squares (OLS) 
+in repeated cross-sections (or a panel) of data on individuals in treatment and control groups for several years before and after a specific intervention.
+
+Formally,
+\begin{equation}
+y_{igt} = \gamma_0 + \gamma_1\alpha_g + \gamma_2\delta_t + c \cdot w_{igt} + \beta T_{gt} + \epsilon_{igt} \label{eq:1}
+\end{equation}
+
+where $\alpha_g$ represents the state fixed effects and is equal to 1 if the state is treated and 0 if the state is not treated. $\delta_t$ represents the time fixed effect, 
+which is equal to 1 in the post-treatment period and 0 in the pre-treatment period. The interaction of the state and the time effects gives us the treatment intervention variable $T_{gt}$, 
+which is equal to 1 only in the states which are treated in the post-treatment period and 0 otherwise. $w_{igt}$ represents the relevant individual controls and $\epsilon_{igt}$ is the error term. 
+The estimated impact of the treatment is then given by the OLS estimate of $\hat{\beta}$.
+
+This specification represents a common generalization of the most basic 2X2 DD setup, which typically involves two periods and two groups. Intuitively, this DD setup compares four cell-level means, where only one cell is treated. 
+The difference in the expected outcome for the control group (the group that is not treated) between post and pre-treatment periods illustrates the time trend, while the difference in the expected outcome of the treatment group minus the 
+time trend serves as the treatment effect estimate.
+
+To understand how the over-rejection vary with the degree of serial autocorrelation in the dependent variable we experiment with various autocorrelation parameters in a synthetically manufactured data.
+We employ various data generation processes namely homogenous AR1, heterogenous AR1, and homogenous MA1.
+The model specification for AR1 data generation process is as follows
+\begin{equation}
+Y_{gt} = \alpha_g + \delta_t + \rho \cdot Y_{gt-1} + \epsilon_{gt} \label{eq:2}
+\end{equation}
+
+In our model, $\alpha_{g}$ and $\delta_{t}$ represent state and time fixed effects, respectively, drawn from a standard normal distribution, $\mathcal{N}(0,1)$. The parameter $\rho$ denotes the level of autocorrelation. The lagged outcome $Y_{gt-1}$ and 
+the error term $\epsilon_{gt}$ are both sampled from a standard normal distribution, $\mathcal{N}(0,1)$. In the homogenous AR1 case, a single $\rho$ value is utilized for all states, while in the heterogenous AR1 case, each state is assigned a distinct $\rho$ 
+value drawn from a uniform distribution ranging between 0.2 and 0.9.
+
+The model specification for the homogenous MA 1 data generaton process is as follows:
+\begin{equation}
+Y_{gt} = \alpha_g + \delta_t + \theta \cdot \epsilon_{gt-1} + \epsilon_{gt} \label{eq:3}
+\end{equation}
+where $\alpha_g$, $\delta_t$, and $\epsilon_{gt}$ are identical to the AR1 specification. $\theta$ denotes the level of autocorrelation. 
+The error terms $\epsilon_{gt}$ are independently sampled from a standard normal distribution, $\mathcal{N}(0,1)$. 
+
+We focus on the AR1 and MA1 models due to their simplicity, which allows us to gain insights into the behavior of inference methods under different types of autocorrelation structures. While these models may not capture the entirety of the dynamics present in empirical 
+applications, they provide a useful starting point for understanding how autocorrelation affects inference in the context of DD estimation.
+
+\section{Placebo Intervention} % (fold)
+\label{sec:Placebo}
+
+To quantify the problem induced by serial autocorrelation in the DD context we randomly generate placebo laws that affect some states and not others, in a staggered manner. We introduce staggered placebo laws to selected states (the treatment group). The commencement of treatment is chosen randomly from the first time period to the last time period.
+In the first step, we choose at random exactly half the states (25) and designate them as treatment states. Then for each designated treatment state, we pick a year from a uniform distribution between 1985 to 1995 and designate them as the treatment starting year for that state. The intervention variable $T_{gt}$ is then defined as a dummy variable which 
+equals 1 for the treated states after the treatment starting period and 0 otherwise.
+
+We then estimate DD equation 1 using OLS on these placebo laws. This generates an estimate of the law's effect and a corresponding standard error. To understand how well conventional DD performs, we repeat this exercise 200 times, each time drawing new laws at random. If the conventional DD provided an appropriate estimate for the standard error, we should expect 
+that the null hypothesis of no effect i.e, $\beta$ = 0 should be rejected exactly 5 percent of the times, when we use a threshold of 1.96 for the absolute t-statistic. The above exercise gives us an idea about the Type I error. 
+
+A small variant of this exercise allows us to assess the power of the test. In this section, we have introduced a 0.25 log point, i.e, we have added 0.25 to $y_{igt}$ only for the treated state time cells.
+The idea is to simulate a 5 percent effect on the data and then we have proceeded with the data aggregation as before. We want to calculate the power of the test by calculating the number of times the null hypothesis of no effect ($\beta$= 0) gets rejected against the alternate hypothesis of ($\beta \neq 0$) out of 200 simulations.
+By repeating this exercise, we can assess how often DD finds an effect when there is one. 
+
+
+\section{CPS Data}
+\label{cps}
+
+We want to test the results that we received from out Monte Carlo simulations on a real world dataset, to see if indeed these methods are being able to tackle of serial autocorrelation.
+We obtained microdata on women in the 50 states of the US from the fourth interview month of the Merged Outgoing Rotation Group (MORG) of the Current Population Survey (CPS) for the years 1980 to 2000, inclusive (21 years). The sample comprises nearly 900,000 observations. Our focus is on women of working age, those between 25 to 50 years old. The extracted data includes information on weekly earnings, education level, age, and state of residence. For our analysis, we have considered the log of weekly earnings as the dependent variable. Among the 900,000 women in the original sample, 
+approximately 443,000 report strictly positive weekly earnings. This results in 1,050 state-year cells (50 states multiplied by 21 years), with each cell containing an average of a little more than 400 women with strictly positive earnings. At the individual level, we include age and education dummies\footnote{The education dummies we use can be categorized by : Up to Grade 10, High School, Master’s Degree, and Doctorate Degree} as covariates.
+
+We use a two-step procedure to compute $\hat{\beta}_{OLS}$ (the estimated treatment effect) from micro-data regression using equation (1).
+
+\textit{Step 1 :}
+In the first step we aggregate the data from microdata into 1050 state-year cells. We conduct a regression using the microdata where the outcome variable $y_{igt}$ is regressed on individual-level control variables $w_{igt}$. This regression captures the relationship between the outcome and individual-level covariates such as age and education levels. We then obtain the residuals from this regression, representing the part of the dependent variable that is not explained by the individual-level covariates. 
+Essentially, these residuals now capture the variation in the dependent variable attributable to state and time effects, as well as any treatment effects that may have occurred. We calculate the mean of these residuals across states and time to obtain the state-year cells containing the aggregated values of the residuals (represented by $\hat{Y}_{gt}$).
+
+\textit{Step 2 :}
+In the second step, we estimate the equation
+\begin{equation}
+\hat{Y}{igt} = \alpha_g + \delta_t + \beta T{gt} + \epsilon_{igt}
+\end{equation}
+
+\noindent where $T_{gt}$ represents the treatment variable. This equation models the relationship between the aggregated residuals $\hat{Y}{gt}$ and the treatment variable while accounting for state and time effects ($\alpha{g}$ and $\delta_{t}$ respectively) as well as any unexplained variation $\epsilon_{gt}$. The OLS estimate $\hat{\beta}$ represents the estimated treatment effect.
+We use the same method to apply the placebo laws as before. We repeat the analysis 200 times, to see how many times the null hypothesis ofno effect is being rejected by the different methods.\footnote{ We explicitly choose this dataset to test our results, because this dataset with the weekly income as the dependent variable shows a high degree of autocorrelation as evident from the wage correlogram table. 
+We also made sure, that no laws were passed around this time which affects the weekly income of the female respondents so that we are not accidentally picking up real effects.} We again induce an effect of 25\% in the aggregated data to get an idea of the Power of the different methods.
+
+The tables in the appendix discuss the results of the CPS monte carlo simulations.
+
+\section{Empirical Analysis}
+\label{sec: Empirical}
+
+Since its establishment in 1995, the WTO has seen 36 states or customs territories join as Article XII members, a process governed by negotiations outlined in the Marrakesh Agreement. These negotiations, conducted under the "single undertaking", require prospective members to adhere to all WTO agreements. 
+Accession typically involves significant domestic reforms, with governments citing reasons such as economic restructuring and market transition. Economic arguments supporting WTO membership highlight its role in reducing trade barriers, promoting international trade, and fostering economic growth. The WTO's Agreement on Agriculture, 
+negotiated during the Uruguay Round, aimed to liberalize agricultural trade by reducing tariffs and subsidies. Additionally, the WTO provides a platform for resolving trade disputes related to agriculture and facilitates trade through measures such as customs streamlining. 
+
+This section examines the hypothesis that WTO accession positively impacted agricultural imports for Article XII members. We employ a difference-in-difference analysis, considering the staggered accession periods of these countries — for instance, China in 2001 and Ukraine in 2008.
+
+
+\subsection{Data and Methodology}
+
+To study the effects of recent WTO accession on total agricultural imports\footnote{Sourced from Food and Agriculture Organisation database ( FAOSTAT)}, we put together a large country-level panel dataset, which covers the period 1992-2015. As mentioned before, the 36 Article XII countries 
+that ascended to the WTO post-1995 become our treatment group. We used the WTO developing country members that were already part of the GATT
+\footnote{The organisation was called GATT ( General Agreement of Tariffs and Trade) before the inception of WTO in 1995} to select the control group. \footnote{In theory, the control group should include non-WTO members whose characteristics are similar to the acceding governments. 
+For statistical reasons, this is not practical, because the group of countries outside the WTO is relatively small (35) and too heterogeneous to provide for a control group.} 
+\footnote{We do not take into account the developed countries as part of our analysis because we want the control group to closely match the treatment group (the Article XII members are all developing nations)}
+
+The specification of the model remains same as before, where $\alpha_g$ represents the state effect and $\delta_t$ represents the time effect. The estimated impact of WTO ascension on the normalised value of Agri Imports is given by $\hat{\beta}$.
+We draw the inference based on the traditional DD estimator using OLS inference. We also report the same analysis but changing the method to Cluster Robust standard error inference as it has given us consistent results  across different data generation methods, 
+and the efficacy of the method has also been  validated by the CPS data. The table in the appendix summarizes the results  for the OLS and CRSE methods respectively.
+
+We observe that the CRSE estimation method, does not give us any significant relationship between the WTO ascension and the total agri imports. This result is more reliable on the account that CRSE method, provides us with a correct test size and the highest power among all other alternative methods.
+
+\section{Conclusion} % (fold)
+\label{sec:conclusion}
+
+In conclusion, our study highlights the importance of considering serial autocorrelation in DD estimation and underscores the limitations of traditional OLS estimators in the presence of autocorrelated errors. 
+By systematically evaluating alternative estimation methods through Monte Carlo simulations, we provide empirical evidence on the efficacy of various approaches in mitigating the adverse effects of autocorrelation 
+on inference in panel data analysis. Our findings have important implications for researchers and policymakers relying on DD estimates for causal inference, emphasizing the need for robustness checks and sensitivity analyses 
+to assess the robustness of results to violations of key assumptions.
+
+\clearpage
+
+\section{References}
+\label{sec:references} 
+
+\begin{enumerate}
+    \item Marianne Bertrand \& Esther Duflo \& Sendhil Mullainathan, 2002. "How Much Should We Trust Differences-in-Differences Estimates?," NBER Working Papers 8841, National Bureau of Economic Research, Inc.
+    \item Cameron, A. C., J. G. Gelbach, and D. L. Miller. 2008. “Bootstrap-Based Improvements for Inference with Clustered Errors.” The Review of Economics and Statistics 90 (3): 414–427.
+    \item Hansen, C. 2007. “Generalized Least Squares Inference in Panel and Multilevel Models with Serial Correlation and Fixed Effects.” Journal of Econometrics 140 (2): 670–694.
+    \item Solon, G. 1984. “Estimating Autocorrelations in Fixed Effects Models.” National Bureau of Economic Research Technical Working Paper 32.
+    \item ANGRIST, J. D. AND J.-S. PISCHKE (2009): Mostly harmless econometrics: An empiricist's companion, Princeton university press.
+    \item Kezdi, Gabor, "Robust Standard Error Estimation in Fixed-Effects Panel Models" Working Paper, University of Michigan, 2002
+    \item Escaith, Hubert and Chemutai, Vicky, An Empirical Assessment of the Economic Effects of WTO Accession and Its Commitments (February 6, 2017). World Trade Organization, Economic Research and Statistics Division: Staff Working Paper ERSD-2017-05
+    \item Leamer, E. (1983) 'Let's Take the Con Out of Econometrics' +The American Economic Review Vol. 73, No. 1 pp. 31-43
+    \item Rose. A (2004) 'Do we really know that WTO increases trade? American Economic Review' 94 (1): 98-114
+    \item Subramanian A and S.J. Wei (2007) 'The WTO promotes trade strongly- but unevenly.' Journal of International Economics 72(1):151-175
+    \item Gaudecker, Hans-Martin von (2023). Templates for Reproducible Research Projects in Economics. https://doi.org/10.5281/zenodo.7780520
+\end{enumerate}
+
+\clearpage
+
+\section{Appendix}
+\label{sec:appendix}
+
+\subsection{Manufactured Data :}
+
+\begin{table}[!ht]
+    \label{tab: 1}
+    \centering
+    \caption{Estimation results of the OLS method for the Homogenous AR 1 data.}
+    \input{../python/tables/Homogenous_AR1/ols.tex}
+\end{table}
+
+\begin{table}[!ht]
+    \label{tab: 2}
+    \centering
+    \caption{Estimation results of the CRSE method for the Homogenous AR 1 data.}
+    \input{../python/tables/Homogenous_AR1/crse.tex}
+\end{table}
+
+\begin{table}[!ht]
+    \label{tab: 3}
+    \centering
+    \caption{Estimation results of the Residual Aggregation method for the Homogenous AR 1 data.}
+    \input{../python/tables/Homogenous_AR1/res_agg.tex}
+\end{table}
+
+\begin{table}[!ht]
+    \label{tab: 4}
+    \centering
+    \caption{Estimation results of the Wild Cluster Bootstrapping method for the Homogenous AR 1 data.}
+    \input{../python/tables/Homogenous_AR1/wbtest.tex}
+\end{table}
+
+\begin{table}[!ht]
+    \label{tab: 5}
+    \centering
+    \caption{Estimation results of the FGLS method for the Homogenous AR 1 data.}
+    \input{../python/tables/Homogenous_AR1/fgls.tex}
+\end{table}
+
+\begin{table}[!ht]
+    \label{tab: 6}
+    \centering
+    \caption{Estimation results of the OLS method for the Heterogenous AR 1 data.}
+    \input{../python/tables/Heterogenous_AR1/ols.tex}
+\end{table}
+
+\begin{table}[!ht]
+    \label{tab: 7}
+    \centering
+    \caption{Estimation results of the CRSE method for the Heterogenous AR 1 data.}
+    \input{../python/tables/Heterogenous_AR1/crse.tex}
+\end{table}
+
+\begin{table}[!ht]
+    \label{tab: 8}
+    \centering
+    \caption{Estimation results of the Residual Aggregation method for the Heterogenous AR 1 data.}
+    \input{../python/tables/Heterogenous_AR1/res_agg.tex}
+\end{table}
+
+\begin{table}[!ht]
+    \label{tab: 9}
+    \centering
+    \caption{Estimation results of the Wild Cluster Bootstrapping method for the Heterogenous AR 1 data.}
+    \input{../python/tables/Heterogenous_AR1/wbtest.tex}
+\end{table}
+
+\begin{table}[!ht]
+    \label{tab: 10}
+    \centering
+    \caption{Estimation results of the FGLS method for the Heterogenous AR 1 data.}
+    \input{../python/tables/Heterogenous_AR1/fgls.tex}
+\end{table}
+
+\begin{table}[!ht]
+    \label{tab: 11}
+    \centering
+    \caption{Estimation results of the OLS method for the Homogenous MA 1 data.}
+    \input{../python/tables/Homogenous_MA1/ols.tex}
+\end{table}
+
+\begin{table}[!ht]
+    \label{tab: 12}
+    \centering
+    \caption{Estimation results of the CRSE method for the Homogenous MA 1 data.}
+    \input{../python/tables/Homogenous_MA1/crse.tex}
+\end{table}
+
+\begin{table}[!ht]
+    \label{tab: 13}
+    \centering
+    \caption{Estimation results of the Residual Aggregation method for the Homogenous MA 1 data.}
+    \input{../python/tables/Homogenous_MA1/res_agg.tex}
+\end{table}
+
+\begin{table}[!ht]
+    \label{tab: 14}
+    \centering
+    \caption{Estimation results of the Wild Cluster Bootstrapping method for the Homogenous MA 1 data.}
+    \input{../python/tables/Homogenous_MA1/wbtest.tex}
+\end{table}
+
+\begin{table}[!ht]
+    \label{tab: 15}
+    \centering
+    \caption{Estimation results of the FGLS method for the Homogenous MA 1 data.}
+    \input{../python/tables/Homogenous_MA1/fgls.tex}
+\end{table}
+
+\clearpage
+
+\subsection{CPS Data}
+
+\begin{table}[!ht]
+    \label{tab: 16}
+    \centering
+    \caption{Estimation results of the OLS method for the CPS data.}
+    \input{../python/cps/cps_results/cps_ols.tex}
+\end{table}
+
+\begin{table}[!ht]
+    \label{tab: 17}
+    \centering
+    \caption{Estimation results of the CRSE method for the CPS data.}
+    \input{../python/cps/cps_results/cps_crse.tex}
+\end{table}
+
+\begin{table}[!ht]
+    \label{tab: 18}
+    \centering
+    \caption{Estimation results of the Residual Aggregation method for the CPS data.}
+    \input{../python/cps/cps_results/cps_res_agg.tex}
+\end{table}
+
+\begin{table}[!ht]
+    \label{tab: 19}
+    \centering
+    \caption{Estimation results of the Wild Cluster Bootstrapping method for the CPS data.}
+    \input{../python/cps/cps_results/cps_wbtest.tex}
+\end{table}
+
+\begin{table}[!ht]
+    \label{tab: 20}
+    \centering
+    \caption{Estimation results of the FGLS method for the CPS data.}
+    \input{../python/cps/cps_results/cps_fgls.tex}
+\end{table}
+
+\clearpage
+\subsection{Empirical Results}
+
+
+\begin{table}[!ht]
+    \label{tab: 21}
+    \centering
+    \caption{Estimation results of the CRSE method for the Empirical dataset.}
+    \input{../python/empirical_study/results/empirical_results_crse.tex}
+\end{table}
+
+
+\setstretch{1}
+\setstretch{1.5}
+\end{document}

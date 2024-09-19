@@ -1,0 +1,16 @@
+---
+N : 50
+T: 20
+rho: 0.8
+theta: 0.5
+alpha: 0.05
+num_individuals : 1
+num_simulations: 200
+treatment_starting_period: 
+treatment_ending_period: 
+cluster_variable: "state"
+treatment_variable : "TREATMENT"
+empirical_depvar : "Total_Agri_Imports"
+empirical_clustervar : "Area"
+empirical_state_variable : "Area"
+empirical_time_variable : "Year"
